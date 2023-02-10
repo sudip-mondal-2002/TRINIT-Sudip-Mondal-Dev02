@@ -1,0 +1,42 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Popup</title>
+    <style>
+        .heading {
+            font-size: 2em;
+            font-weight: 600;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            list-style-type: none;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            margin-right: 20px;
+        }
+
+        body {
+            font-family: Helvetica, sans-serif;
+            background-color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            width: 300px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+<h1 class="heading">Your Carbon Footprints</h1>
+<p>Total <span id="carbon-eq"></span> tonnes CO<sub>2</sub> equivalent is consumed</p>
+<p>Total <span id="carbon-eq-website"></span> tonnes CO<sub>2</sub> equivalent only in <span id="website-url"></span>
+</p>
+<h3>Top eq CO<sub>2</sub> emission by you through these websites (tonnes)</h3>
+<ul id="carbon-eq-top-website-list"></ul>
+<script src="popup.js"></script>
+</body>
+</html>

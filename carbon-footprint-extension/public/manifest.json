@@ -1,0 +1,24 @@
+{
+  "name": "Carbon Footprint",
+  "description": "This extension is made for tracking of carbon footprint left behind by websites you visit. It is a part of the project 'Tri-NIT Hackathon'.",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "permissions": [
+    "scripting",
+    "activeTab",
+    "webRequest",
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ]
+}
