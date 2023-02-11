@@ -4,6 +4,7 @@ import { UsageReportDTO } from "../dto/Usage/UsageReport";
 import axios from "axios";
 import InfoIcon from '@mui/icons-material/Info';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
+import Head from 'next/head'
 
 export default function Home({ usage }: { usage: UsageReportDTO[] }) {
     const [sortColumn, setSortColumn] = React.useState<"website_usage_factor" | "website_total_usage">("website_total_usage");
@@ -38,138 +39,146 @@ export default function Home({ usage }: { usage: UsageReportDTO[] }) {
         }
         return "red"
     }
-    return <Container disableGutters={true}>
-        {
-            <Grid container={true} spacing={0} sx={{
-                minWidth: "400px"
-            }}>
-                <Grid item={true} container={true} spacing={0} xs={12} sx={{
-                    backgroundColor: "#dddddd",
-                    paddingLeft: "30px",
-                    height: "80px",
-                    display: "flex",
-                    justifyContent: "flex-start",
-                    alignItems: "center"
+    return <>
+        <Head>
+            <title>Carbon footprint</title>
+        </Head>
+        <Container disableGutters={true}>
+            {
+
+                <Grid container={true} spacing={0} sx={{
+                    minWidth: "400px"
                 }}>
-                    <Grid item={true} xs={5} md={3} lg={3}>
-                        <Typography>Website Origin</Typography>
-                    </Grid>
-                    <Grid item={true} xs={4} md={3} lg={3} sx={{
+                    <Grid item={true} container={true} spacing={0} xs={12} sx={{
+                        backgroundColor: "#dddddd",
+                        paddingLeft: "30px",
+                        height: "80px",
                         display: "flex",
                         justifyContent: "flex-start",
-                        alignItems: "center",
+                        alignItems: "center"
                     }}>
-                        <IconButton onClick={() => {
-                            if (sortColumn === "website_total_usage") {
-                                setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-                            } else {
-                                setSortColumn("website_total_usage");
-                                setSortDirection("desc");
-                            }
-                        }}>
-                            <SwapVertIcon />
-                        </IconButton>
-                        <Box sx={{
+                        <Grid item={true} xs={5} md={3} lg={3}>
+                            <Typography>Website Origin</Typography>
+                        </Grid>
+                        <Grid item={true} xs={4} md={3} lg={3} sx={{
                             display: "flex",
-                            flexDirection: "column"
+                            justifyContent: "flex-start",
+                            alignItems: "center",
                         }}>
-                            <Typography>Usage</Typography>
-                            <Typography>(gm eq. CO<sub>2</sub>)</Typography>
-                        </Box>
+                            <IconButton onClick={() => {
+                                if (sortColumn === "website_total_usage") {
+                                    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+                                } else {
+                                    setSortColumn("website_total_usage");
+                                    setSortDirection("desc");
+                                }
+                            }}>
+                                <SwapVertIcon />
+                            </IconButton>
+                            <Box sx={{
+                                display: "flex",
+                                flexDirection: "column"
+                            }}>
+                                <Typography>Usage</Typography>
+                                <Typography>(gm eq. CO<sub>2</sub>)</Typography>
+                            </Box>
+                        </Grid>
+                        <Grid item={true} xs={2} md={3} lg={3} sx={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                        }}>
+                            <IconButton onClick={() => {
+                                if (sortColumn === "website_usage_factor") {
+                                    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+                                } else {
+                                    setSortColumn("website_usage_factor");
+                                    setSortDirection("desc");
+                                }
+                            }}>
+                                <SwapVertIcon />
+                            </IconButton>
+                            <Typography>Usage Factor</Typography>
+                            <span className="tooltip-class">
+                                <Tooltip title={
+                                    "The usage factor is the amount of carbon dioxide emitted adjusted with how much the website is being used"
+                                } sx={{
+                                    cursor: "pointer",
+                                    marginLeft: "5px"
+                                }}>
+                                    <InfoIcon scale={"small"} />
+                                </Tooltip>
+                            </span>
+                        </Grid>
                     </Grid>
-                    <Grid item={true} xs={2} md={3} lg={3} sx={{
-                        display: "flex",
-                        justifyContent: "flex-start",
-                        alignItems: "center",
-                    }}>
-                        <IconButton onClick={() => {
-                            if (sortColumn === "website_usage_factor") {
-                                setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-                            } else {
-                                setSortColumn("website_usage_factor");
-                                setSortDirection("desc");
+                    {
+                        usage.map((u: UsageReportDTO) => {
+                            return {
+                                website_origin: u.website_origin,
+                                website_total_usage: u.website_total_usage * 1000,
+                                website_usage_factor: (u.website_total_usage * (1000 * 1000) / u.website_report_count).toFixed(4)
                             }
-                        }}>
-                            <SwapVertIcon />
-                        </IconButton>
-                        <Typography>Usage Factor</Typography>
-                        <Tooltip title={
-                            "The usage factor is the amount of carbon dioxide emitted adjusted with how much the website is being used"
-                        } sx={{
-                            cursor: "pointer",
-                            marginLeft: "5px"
-                        }}>
-                            <InfoIcon scale={"small"} />
-                        </Tooltip>
-                    </Grid>
-                </Grid>
-                {
-                    usage.map((u: UsageReportDTO) => {
-                        return {
-                            website_origin: u.website_origin,
-                            website_total_usage: u.website_total_usage * 1000,
-                            website_usage_factor: (u.website_total_usage * (1000 * 1000) / u.website_report_count).toFixed(4)
-                        }
-                    })
-                        .sort((a: any, b: any) => {
-                            return (b[sortColumn] - a[sortColumn]) * (sortDirection === "asc" ? -1 : 1);
                         })
-                        .map((u: any, index) => {
-                            return <Grid
-                                key={u.website_origin}
-                                item={true} container={true}
-                                spacing={0} xs={12}
-                                sx={{
-                                    backgroundColor: index % 2 === 0 ? "#ffffff" : "#f5f5f5",
-                                    height: "60px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "flex-start",
-                                    paddingLeft: "30px",
-                                }}
-                            >
-                                <Grid item={true} xs={6} md={3} lg={3}>
-                                    <Typography>
-                                        {u.website_origin.length > 25 ? u.website_origin.substring(0, 20) + "..." : u.website_origin}
-                                    </Typography>
-                                </Grid>
-                                <Grid item={true} xs={2} md={3} lg={3} sx={{
-                                    paddingLeft: "30px"
-                                }}>
-                                    <Typography>{u.website_total_usage.toFixed(2)}</Typography>
-                                </Grid>
-                                <Grid item={true} xs={3} md={3} lg={3} sx={{
-                                    paddingLeft: "30px"
-                                }}>
-                                    <Typography>{u.website_usage_factor}</Typography>
-                                </Grid>
-                                <Grid item={true} xs={3} md={3} lg={3} sx={{
-                                    paddingLeft: "30px"
-                                }}>
-                                    <Box sx={{
+                            .sort((a: any, b: any) => {
+                                return (b[sortColumn] - a[sortColumn]) * (sortDirection === "asc" ? -1 : 1);
+                            })
+                            .map((u: any, index) => {
+                                return <Grid
+                                    key={u.website_origin}
+                                    item={true} container={true}
+                                    spacing={0} xs={12}
+                                    sx={{
+                                        backgroundColor: index % 2 === 0 ? "#ffffff" : "#f5f5f5",
+                                        height: "60px",
                                         display: "flex",
+                                        alignItems: "center",
                                         justifyContent: "flex-start",
-                                        alignItems: "flex-start"
+                                        paddingLeft: "30px",
+                                    }}
+                                >
+                                    <Grid item={true} xs={6} md={3} lg={3}>
+                                        <Typography>
+                                            {u.website_origin.length > 25 ? u.website_origin.substring(0, 20) + "..." : u.website_origin}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item={true} xs={2} md={3} lg={3} sx={{
+                                        paddingLeft: "30px"
                                     }}>
-                                        {
-                                            Array(getRating(u.website_usage_factor)).fill(0).map((_, index) => {
-                                                return <Box key={index} sx={{
-                                                    backgroundColor: getColor(getRating(u.website_usage_factor)),
-                                                    height: "4px",
-                                                    width: "10px",
-                                                    borderRadius: "4px",
-                                                    marginRight: "1px"
-                                                }}></Box>
-                                            })
-                                        }
-                                    </Box>
+                                        <Typography>{u.website_total_usage.toFixed(2)}</Typography>
+                                    </Grid>
+                                    <Grid item={true} xs={3} md={3} lg={3} sx={{
+                                        paddingLeft: "30px"
+                                    }}>
+                                        <Typography>{u.website_usage_factor}</Typography>
+                                    </Grid>
+                                    <Grid item={true} xs={3} md={3} lg={3} sx={{
+                                        paddingLeft: "30px"
+                                    }}>
+                                        <Box sx={{
+                                            display: "flex",
+                                            justifyContent: "flex-start",
+                                            alignItems: "flex-start"
+                                        }}>
+                                            {
+                                                Array(getRating(u.website_usage_factor)).fill(0).map((_, index) => {
+                                                    return <Box key={index} sx={{
+                                                        backgroundColor: getColor(getRating(u.website_usage_factor)),
+                                                        height: "4px",
+                                                        width: "10px",
+                                                        borderRadius: "4px",
+                                                        marginRight: "1px"
+                                                    }}></Box>
+                                                })
+                                            }
+                                        </Box>
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                        })
-                }
-            </Grid>
-        }
-    </Container>
+                            })
+                    }
+                </Grid>
+            }
+        </Container>
+    </>
 }
 
 Home.getInitialProps = async () => {
