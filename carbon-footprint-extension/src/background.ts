@@ -120,7 +120,7 @@ chrome.alarms.onAlarm.addListener(async alarm => {
             }
             if (Object.keys(toSend).length > 0) {
                 try{
-                    await fetch("http://localhost:3000/api/usage", {
+                    await fetch("https://sudip-mondal-2002-ideal-zebra-7x9r4gj6xrqcrx9q-3000.preview.app.github.dev/api/usage", {
                         method: "POST",
                         body: JSON.stringify(toSend),
                         headers: {
