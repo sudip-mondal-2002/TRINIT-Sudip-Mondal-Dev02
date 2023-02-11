@@ -1,13 +1,43 @@
 import React from "react";
-import {Container, Grid, IconButton, Tooltip, Typography} from "@mui/material";
+import {Box, Container, Grid, IconButton, Tooltip, Typography} from "@mui/material";
 import {UsageReportDTO} from "../dto/Usage/UsageReport";
 import axios from "axios";
 import InfoIcon from '@mui/icons-material/Info';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 
 export default function Home({usage}: { usage: UsageReportDTO[] }) {
-    const [sortColumn, setSortColumn] = React.useState<"website_usage_factor" | "website_total_usage">("website_usage_factor");
+    const [sortColumn, setSortColumn] = React.useState<"website_usage_factor" | "website_total_usage">("website_total_usage");
     const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("desc");
+    const getRating = (usage_factor: number):number =>{
+        if (usage_factor < 1) {
+            return 1
+        }
+        if (usage_factor < 10) {
+            return 2
+        }
+        if (usage_factor < 40) {
+            return 3
+        }
+        if (usage_factor < 100) {
+            return 4
+        }
+        return 5
+    }
+    const getColor = (rating:number):string =>{
+        if (rating === 1) {
+            return "green"
+        }
+        if (rating === 2) {
+            return "lightgreen"
+        }
+        if (rating === 3) {
+            return "yellow"
+        }
+        if (rating === 4) {
+            return "orange"
+        }
+        return "red"
+    }
     return <Container>
         {
             <Grid container={true} spacing={0}>
@@ -19,10 +49,10 @@ export default function Home({usage}: { usage: UsageReportDTO[] }) {
                     justifyContent: "flex-start",
                     alignItems: "center",
                 }}>
-                    <Grid item={true} xs={4}>
+                    <Grid item={true} xs={3}>
                         <Typography>Website Origin</Typography>
                     </Grid>
-                    <Grid item={true} xs={4} sx={{
+                    <Grid item={true} xs={3} sx={{
                         display: "flex",
                         justifyContent: "flex-start",
                         alignItems: "center",
@@ -39,7 +69,7 @@ export default function Home({usage}: { usage: UsageReportDTO[] }) {
                         </IconButton>
                         <Typography>Website Usage </Typography>
                     </Grid>
-                    <Grid item={true} xs={4} sx={{
+                    <Grid item={true} xs={3} sx={{
                         display: "flex",
                         justifyContent: "flex-start",
                         alignItems: "center",
@@ -90,20 +120,36 @@ export default function Home({usage}: { usage: UsageReportDTO[] }) {
                                     paddingLeft: "30px",
                                 }}
                             >
-                                <Grid item={true} xs={4}>
+                                <Grid item={true} xs={3}>
                                     <Typography>
                                         {u.website_origin.length > 35 ? u.website_origin.substring(0, 30) + "..." : u.website_origin}
                                     </Typography>
                                 </Grid>
-                                <Grid item={true} xs={4} sx={{
+                                <Grid item={true} xs={3} sx={{
                                     paddingLeft: "30px"
                                 }}>
                                     <Typography>{u.website_total_usage.toFixed(2)} gm eq. CO<sub>2</sub></Typography>
                                 </Grid>
-                                <Grid item={true} xs={4} sx={{
+                                <Grid item={true} xs={3} sx={{
                                     paddingLeft: "30px"
                                 }}>
                                     <Typography>{u.website_usage_factor}</Typography>
+                                </Grid>
+                                <Grid item={true} xs={3} sx={{
+                                    paddingLeft: "30px",
+                                    display: "flex"
+                                }}>
+                                    {
+                                        Array(getRating(u.website_usage_factor)).fill(0).map((_, index) => {
+                                            return <Box key ={index} sx={{
+                                                backgroundColor: getColor(getRating(u.website_usage_factor)),
+                                                height: "4px",
+                                                width: "10px",
+                                                borderRadius: "4px",
+                                                marginRight: "1px"
+                                            }}></Box>
+                                        })
+                                    }
                                 </Grid>
                             </Grid>
                         })
