@@ -32,6 +32,6 @@ chrome.storage.local.get("carbon_data", (data) => {
 
 const bytesToCarbon = (bytes) => {
     const gigabytes_used = bytes / (1024 * 1024 * 1024);
-    const carbon_footprint = gigabytes_used * 11 / (1000);
+    const carbon_footprint = gigabytes_used * 11;
     return carbon_footprint;
 }
