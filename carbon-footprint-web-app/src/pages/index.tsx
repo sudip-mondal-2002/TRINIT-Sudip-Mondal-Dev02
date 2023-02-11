@@ -5,7 +5,7 @@ import axios from "axios";
 import InfoIcon from '@mui/icons-material/Info';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 
-export default function Home({usage}: { usage: UsageReportDTO[] }) {
+export default function Home({usage}:{usage:UsageReportDTO[]}) {
     const [sortColumn, setSortColumn] = React.useState<"website_usage_factor" | "website_total_usage">("website_total_usage");
     const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("desc");
     const getRating = (usage_factor: number):number =>{
@@ -159,8 +159,7 @@ export default function Home({usage}: { usage: UsageReportDTO[] }) {
     </Container>
 }
 
-Home.getInitialProps = async () => {
-    const res = await axios.get(`https://sudip-mondal-2002-ideal-zebra-7x9r4gj6xrqcrx9q-3000.preview.app.github.dev/api/usage`);
-    const usage = await res.data;
-    return {usage};
+Home.getInitialProps = async ()=>{
+    const res = await axios.get("https://sudip-mondal-2002-ideal-zebra-7x9r4gj6xrqcrx9q-3000.preview.app.github.dev/api/usage")
+    return {usage: res.data}
 }
