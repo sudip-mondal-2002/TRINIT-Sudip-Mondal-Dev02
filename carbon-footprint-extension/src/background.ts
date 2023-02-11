@@ -1,6 +1,6 @@
 // get total content length in a request sent
 const CARBON_DATA = "carbon_data"
-const last_sent: any = {}
+const LAST_SENT = "last_sent"
 chrome.storage.local.get(CARBON_DATA, async (data) => {
     if (!data[CARBON_DATA]) {
         await chrome.storage.local.set({
@@ -8,10 +8,18 @@ chrome.storage.local.get(CARBON_DATA, async (data) => {
         });
     }
 })
+chrome.storage.local.get(LAST_SENT, async (data) => {
+    if (!data[LAST_SENT]) {
+        await chrome.storage.local.set({
+            [LAST_SENT]: {}
+        });
+    }
+})
 chrome.webRequest.onBeforeRequest.addListener(details => {
         chrome.storage.local.get(CARBON_DATA, async data => {
             if (!details.initiator || !details.requestBody) return;
-            if(details.initiator.includes("localhost")) return;
+            if (details.initiator.includes("localhost")) return;
+            if (details.initiator.includes("chrome-extension")) return;
             const carbonData = data[CARBON_DATA];
             let {initiator, requestBody} = details;
             if (initiator[initiator.length - 1] === "/") {
@@ -51,7 +59,8 @@ chrome.webRequest.onBeforeRequest.addListener(details => {
 chrome.webRequest.onBeforeSendHeaders.addListener(details => {
     chrome.storage.local.get(CARBON_DATA, async data => {
         if (!details.initiator || !details.requestHeaders) return;
-        if(details.initiator.includes("localhost")) return;
+        if (details.initiator.includes("localhost")) return;
+        if (details.initiator.includes("chrome-extension")) return;
         const carbonData = data[CARBON_DATA];
         const {initiator, requestHeaders} = details;
         if (!carbonData[initiator]) {
@@ -69,9 +78,11 @@ chrome.webRequest.onBeforeSendHeaders.addListener(details => {
 }, ["requestHeaders", "extraHeaders"]);
 
 
-chrome.webRequest.onCompleted.addListener(details => {
+chrome.webRequest.onCompleted.addListener(async details => {
     chrome.storage.local.get(CARBON_DATA, async data => {
         if (!details.initiator) return;
+        if (details.initiator.includes("localhost")) return;
+        if (details.initiator.includes("chrome-extension")) return;
         const carbonData = data[CARBON_DATA];
         const {initiator, responseHeaders} = details;
         if (!carbonData[initiator]) {
@@ -87,29 +98,42 @@ chrome.webRequest.onCompleted.addListener(details => {
             [CARBON_DATA]: carbonData
         });
     })
-}, {urls: ["<all_urls>"]}, ["responseHeaders", "extraHeaders"]);
+}, {urls: ["http://*/*", "https://*/*"]}, ["responseHeaders", "extraHeaders"]);
 
 chrome.alarms.create("send_carbon_data", {
-    periodInMinutes: 1
+    periodInMinutes: 5
 });
 
 chrome.alarms.onAlarm.addListener(async alarm => {
     if (alarm.name !== "send_carbon_data") return;
-    chrome.storage.local.get(CARBON_DATA, async data => {
-        const toSend: any = {}
-        const carbonData = data[CARBON_DATA];
-        const keys = Object.keys(carbonData);
-        for (const key of keys) {
-            if (!last_sent[key]) {
-                last_sent[key] = 0;
+    chrome.storage.local.get(CARBON_DATA, async carbon_data => {
+        chrome.storage.local.get(LAST_SENT, async last_sent_data => {
+            const toSend: any = {}
+            const carbonData = carbon_data[CARBON_DATA];
+            const last_sent = last_sent_data[LAST_SENT];
+            const keys = Object.keys(carbonData);
+            for (const key of keys) {
+                if (carbonData[key] > last_sent[key] || !last_sent[key]) {
+                    toSend[key] = carbonData[key] - (last_sent[key] || 0);
+                    last_sent[key] = carbonData[key];
+                }
             }
-            if (carbonData[key] > last_sent[key]) {
-                toSend[key] = carbonData[key] - last_sent[key];
-                last_sent[key] = carbonData[key];
+            if (Object.keys(toSend).length > 0) {
+                try{
+                    await fetch("http://localhost:3000/api/usage", {
+                        method: "POST",
+                        body: JSON.stringify(toSend),
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    })
+                    await chrome.storage.local.set({
+                        [LAST_SENT]: last_sent
+                    });
+                } catch (e) {
+                    console.log(e);
+                }
             }
-        }
-        if (Object.keys(toSend).length > 0) {
-            console.log(toSend);
-        }
+        })
     })
 });

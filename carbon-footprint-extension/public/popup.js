@@ -16,8 +16,7 @@ chrome.storage.local.get("carbon_data", (data) => {
         url = url.split("//")[0] + "//" + url.split("//")[1].split("/")[0];
 
         const website_bytes_used = websiteData[url] || 0;
-        const website_gigabytes_used = website_bytes_used / (1024 * 1024 * 1024);
-        const website_carbon_footprint = website_gigabytes_used * 11 / (1000 * 1000);
+        const website_carbon_footprint = bytesToCarbon(website_bytes_used);
         carbon_eq_website.innerText = website_carbon_footprint.toFixed(2);
         website_url_span.innerText = url;
 
@@ -33,6 +32,6 @@ chrome.storage.local.get("carbon_data", (data) => {
 
 const bytesToCarbon = (bytes) => {
     const gigabytes_used = bytes / (1024 * 1024 * 1024);
-    const carbon_footprint = gigabytes_used * 11 / (1000 * 1000);
+    const carbon_footprint = gigabytes_used * 11 / (1000);
     return carbon_footprint;
 }
