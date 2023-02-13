@@ -1,7 +1,7 @@
 # TRINIT-Sudip-Mondal-Dev02
 
 ## Portal to monitor the data
-The portal that I built to monitor the websites can be found [here](https://sudip-mondal-2002-ideal-zebra-7x9r4gj6xrqcrx9q-3000.preview.app.github.dev).
+The portal that I built to monitor the websites can be found [here](https://sudip-mondal-2002-ideal-zebra-7x9r4gj6xrqcrx9q-3000.preview.app.github.dev). [Not deployed anymore]
 
 ## Installing the extension
 
